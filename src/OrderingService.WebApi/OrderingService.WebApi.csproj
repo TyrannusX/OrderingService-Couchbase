@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OrderingService.Commands\OrderingService.Commands.csproj" />
+    <ProjectReference Include="..\OrderingService.Domain\OrderingService.Domain.csproj" />
+    <ProjectReference Include="..\OrderingService.Infrastructure\OrderingService.Infrastructure.csproj" />
+  </ItemGroup>
+
+
+</Project>
