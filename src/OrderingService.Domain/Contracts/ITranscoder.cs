@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 
 namespace OrderingService.Domain.Contracts
 {
-    public interface ITranscoder<T> where T: class
+    public interface ITranscoder
     {
-        Task<T> Decode(byte[] item);
-        Task<byte[]> Encode(T item);
+        Task<object> Decode(byte[] item, string contentType);
+        Task<byte[]> Encode(object item, string contentType);
     }
 }

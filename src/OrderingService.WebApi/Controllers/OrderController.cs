@@ -16,24 +16,18 @@ namespace OrderingService.WebApi.Controllers
     public class OrderController : ControllerBase
     {
         private readonly ILogger<OrderController> _logger;
-        private readonly ICommandHandler<CreateOrderCommand, string> _createOrderCommandHandler;
-        private readonly ICommandHandler<GetOrderCommand, Order> _getOrderCommandHandler;
-        private readonly ITranscoder<CreateOrderCommand> _createOrderCommandTranscoder;
-        private readonly ITranscoder<Order> _orderTranscoder;
+        private readonly IMediator _mediator;
+        private readonly ITranscoder _transcoder;
 
         public OrderController(
-            ILogger<OrderController> logger, 
-            ITranscoder<CreateOrderCommand> createOrderCommandTranscoder, 
-            ICommandHandler<CreateOrderCommand, string> createOrderCommandHandler,
-            ICommandHandler<GetOrderCommand, Order> getOrderCommandHandler,
-            ITranscoder<Order> orderTranscoder
+            ILogger<OrderController> logger,
+            ITranscoder transcoder,
+            IMediator mediator
             )
         {
             _logger = Guard.Argument(logger, nameof(logger)).NotNull().Value;
-            _createOrderCommandTranscoder = Guard.Argument(createOrderCommandTranscoder, nameof(createOrderCommandTranscoder)).NotNull().Value;
-            _createOrderCommandHandler = Guard.Argument(createOrderCommandHandler, nameof(createOrderCommandHandler)).NotNull().Value;
-            _getOrderCommandHandler = Guard.Argument(getOrderCommandHandler, nameof(getOrderCommandHandler)).NotNull().Value;
-            _orderTranscoder = Guard.Argument(orderTranscoder, nameof(orderTranscoder)).NotNull().Value;
+            _transcoder = Guard.Argument(transcoder, nameof(transcoder)).NotNull().Value;
+            _mediator = Guard.Argument(mediator, nameof(mediator)).NotNull().Value;
         }
 
         [HttpPost]
@@ -42,7 +36,7 @@ namespace OrderingService.WebApi.Controllers
             _logger.LogTrace("Entering POST endpoint {endpoint} for controller {OrderController}", nameof(Order), typeof(OrderController));
             CreateOrderCommand createOrderCommand = await DecodeRequest();
             _logger.LogTrace("{commandType} value is {command}", typeof(CreateOrderCommand), createOrderCommand);
-            await _createOrderCommandHandler.Handle(createOrderCommand);
+            await _mediator.Send(createOrderCommand);
             return Ok();
         }
 
@@ -54,14 +48,14 @@ namespace OrderingService.WebApi.Controllers
                 Id = id
             };
 
-            Order order = await _getOrderCommandHandler.Handle(getOrderCommand);
+            Order order = await _mediator.Send(getOrderCommand) as Order;
             await EncodeResponse(order);
             return Ok();
         }
 
         private async Task EncodeResponse(Order order)
         {
-            byte[] encodedOrder = await _orderTranscoder.Encode(order);
+            byte[] encodedOrder = await _transcoder.Encode(order, nameof(Domain.Orders.Order));
             HttpContext.Response.ContentType = "application/json";
             await HttpContext.Response.Body.WriteAsync(encodedOrder, 0, encodedOrder.Length);
         }
@@ -77,7 +71,7 @@ namespace OrderingService.WebApi.Controllers
 
             //Conver to bytes and send to transcoder
             byte[] item = Encoding.UTF8.GetBytes(rawRequest);
-            return await _createOrderCommandTranscoder.Decode(item);
+            return await _transcoder.Decode(item, nameof(CreateOrderCommand)) as CreateOrderCommand;
         }
     }
 }

@@ -14,19 +14,19 @@ namespace OrderingService.Infrastructure.Repositories
     public class CouchbaseOrderRepository : IRepository<Order>
     {
         private readonly CouchbaseConfiguration _couchbaseConfiguration;
-        private readonly ITranscoder<Order> _orderTranscoder;
+        private readonly ITranscoder _transcoder;
 
-        public CouchbaseOrderRepository(CouchbaseConfiguration couchbaseConfiguration, ITranscoder<Order> orderTranscoder)
+        public CouchbaseOrderRepository(CouchbaseConfiguration couchbaseConfiguration, ITranscoder transcoder)
         {
             _couchbaseConfiguration = couchbaseConfiguration;
-            _orderTranscoder = orderTranscoder;
+            _transcoder = transcoder;
         }
 
         public async Task<string> Create(Order item)
         {
             ICouchbaseCollection collection = await GetCollection();
 
-            byte[] encodedOrder = await _orderTranscoder.Encode(item);
+            byte[] encodedOrder = await _transcoder.Encode(item, nameof(Order));
             await collection.UpsertAsync(item.Id, encodedOrder, options => options.Transcoder(new RawJsonTranscoder()));
 
             return item.Id;
@@ -43,14 +43,14 @@ namespace OrderingService.Infrastructure.Repositories
             ICouchbaseCollection collection = await GetCollection();
             IGetResult couchbaseData = await collection.GetAsync(id, options => options.Transcoder(new RawJsonTranscoder()));
             byte[] encodedOrder = couchbaseData.ContentAs<byte[]>();
-            Order order = await _orderTranscoder.Decode(encodedOrder);
+            Order order = await _transcoder.Decode(encodedOrder, nameof(Order)) as Order;
             return order;
         }
 
         public async Task<Order> Update(Order item, string id)
         {
             ICouchbaseCollection collection = await GetCollection();
-            byte[] encodedOrder = await _orderTranscoder.Encode(item);
+            byte[] encodedOrder = await _transcoder.Encode(item, nameof(Order));
             await collection.UpsertAsync(item.Id, encodedOrder, options => options.Transcoder(new RawJsonTranscoder()));
             return item;
         }
