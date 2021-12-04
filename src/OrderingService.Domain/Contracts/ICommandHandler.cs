@@ -5,8 +5,13 @@ using System.Threading.Tasks;
 
 namespace OrderingService.Domain.Contracts
 {
-    public interface ICommandHandler<TStart, TResult> where TStart : ICommand
+    public interface ICommandHandler<TCommand> where TCommand : ICommand
     {
-        Task<TResult> Handle(TStart command);
+        Task Handle(TCommand command);
+    }
+
+    public interface ICommandHandler<TCommand, TResult> where TCommand : ICommand<TResult>
+    {
+        Task<TResult> Handle(TCommand command);
     }
 }

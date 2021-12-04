@@ -4,10 +4,11 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace OrderingService.Commands.CreateOrder
+namespace OrderingService.Commands.UpdateOrder
 {
-    public class CreateOrderCommand : ICommand<string>
+    public class UpdateOrderCommand : ICommand<Order>
     {
+        public string Id { get; set; }
         public string CustomerFirstName { get; set; }
         public string CustomerLastName { get; set; }
         public Address Address { get; set; }
@@ -16,7 +17,8 @@ namespace OrderingService.Commands.CreateOrder
         public override string ToString()
         {
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.Append(nameof(CreateOrderCommand).ToUpperInvariant());
+            stringBuilder.Append(nameof(UpdateOrderCommand).ToUpperInvariant());
+            stringBuilder.Append(nameof(Id)).Append("=").Append(Id).Append(Environment.NewLine);
             stringBuilder.Append(nameof(CustomerFirstName)).Append("=").Append(CustomerFirstName).Append(Environment.NewLine);
             stringBuilder.Append(nameof(CustomerLastName)).Append("=").Append(CustomerLastName).Append(Environment.NewLine);
             stringBuilder.Append(nameof(Address)).Append("=").Append(Address).Append(Environment.NewLine);

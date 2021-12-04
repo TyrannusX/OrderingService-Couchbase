@@ -8,4 +8,9 @@ namespace OrderingService.Domain.Contracts
     {
 
     }
+
+    public interface ICommand<out TResult>
+    {
+
+    }
 }

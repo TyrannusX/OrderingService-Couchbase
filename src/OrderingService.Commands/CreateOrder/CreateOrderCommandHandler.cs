@@ -45,14 +45,14 @@ namespace OrderingService.Commands.CreateOrder
 
         private void Validate(CreateOrderCommand createOrderCommand)
         {
-            if(createOrderCommand is null)
+            if (createOrderCommand is null)
             {
                 string message = $"{typeof(CreateOrderCommand)} is null in {typeof(CreateOrderCommandHandler)}";
                 _logger.LogError(message);
                 throw new ArgumentNullException(message);
             }
 
-            if(string.IsNullOrWhiteSpace(createOrderCommand.CustomerFirstName))
+            if (string.IsNullOrWhiteSpace(createOrderCommand.CustomerFirstName))
             {
                 string message = $"{nameof(createOrderCommand.CustomerFirstName)} is null in {typeof(CreateOrderCommandHandler)}";
                 _logger.LogError(message);

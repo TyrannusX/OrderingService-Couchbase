@@ -2,8 +2,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using OrderingService.Commands.CreateOrder;
 using OrderingService.Commands.GetOrder;
+using OrderingService.Commands.UpdateOrder;
 using OrderingService.Domain.Contracts;
-using OrderingService.Domain.Mediators;
 using OrderingService.Domain.Orders;
 using OrderingService.Domain.Transcoders;
 using OrderingService.Infrastructure.Configurations;
@@ -13,15 +13,11 @@ namespace OrderingService.WebApi.Extensions
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddMediator(this IServiceCollection serviceCollection)
+        public static IServiceCollection AddCommandHandlers(this IServiceCollection serviceCollection)
         {
-            //Mediator
-            serviceCollection.AddScoped<IMediator, Mediator>();
-
-            //Command Handlers
             serviceCollection.AddScoped<ICommandHandler<CreateOrderCommand, string>, CreateOrderCommandHandler>();
             serviceCollection.AddScoped<ICommandHandler<GetOrderCommand, Order>, GetOrderCommandHandler>();
-
+            serviceCollection.AddScoped<ICommandHandler<UpdateOrderCommand, Order>, UpdateOrderCommandHandler>();
             return serviceCollection;
         }
 
@@ -33,10 +29,12 @@ namespace OrderingService.WebApi.Extensions
             //Encoders
             serviceCollection.AddScoped<IEncoder, OrderEncoder>();
             serviceCollection.AddScoped<IEncoder, CreateOrderCommandEncoder>();
+            serviceCollection.AddScoped<IEncoder, UpdateOrderCommandEncoder>();
 
             //Decoders
             serviceCollection.AddScoped<IDecoder, OrderDecoder>();
             serviceCollection.AddScoped<IDecoder, CreateOrderCommandDecoder>();
+            serviceCollection.AddScoped<IDecoder, UpdateOrderCommandDecoder>();
 
             return serviceCollection;
         }

@@ -12,5 +12,6 @@ namespace OrderingService.Infrastructure.Configurations
         public string OrdersBucketName { get; set; }
         public string OrdersBucketScope { get; set; }
         public string OrdersCollectionName { get; set; }
+        public int MaxCasRetries { get; set; }
     }
 }
