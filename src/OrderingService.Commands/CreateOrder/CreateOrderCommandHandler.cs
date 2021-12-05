@@ -22,7 +22,7 @@ namespace OrderingService.Commands.CreateOrder
 
         public async Task<string> Handle(CreateOrderCommand command)
         {
-            _logger.LogTrace("Entering {commandhandler}", typeof(CreateOrderCommandHandler));
+            _logger.LogTrace("Handling create order command with command {command}", command);
 
             Validate(command);
 
@@ -38,7 +38,7 @@ namespace OrderingService.Commands.CreateOrder
 
             await _orderRepository.Create(order);
 
-            _logger.LogTrace("Created order successfully");
+            _logger.LogTrace("Created order successfully. New Id is {id}", newId);
 
             return newId;
         }

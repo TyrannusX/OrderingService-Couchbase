@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using OrderingService.Commands.CreateOrder;
+using OrderingService.Commands.DeleteOrder;
 using OrderingService.Commands.GetOrder;
 using OrderingService.Commands.UpdateOrder;
 using OrderingService.Domain.Contracts;
@@ -15,9 +16,11 @@ namespace OrderingService.WebApi.Extensions
     {
         public static IServiceCollection AddCommandHandlers(this IServiceCollection serviceCollection)
         {
+            //Order CRUD handlers
             serviceCollection.AddScoped<ICommandHandler<CreateOrderCommand, string>, CreateOrderCommandHandler>();
             serviceCollection.AddScoped<ICommandHandler<GetOrderCommand, Order>, GetOrderCommandHandler>();
             serviceCollection.AddScoped<ICommandHandler<UpdateOrderCommand, Order>, UpdateOrderCommandHandler>();
+            serviceCollection.AddScoped<ICommandHandler<DeleteOrderCommand>, DeleteOrderCommandHandler>();
             return serviceCollection;
         }
 

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using OrderingService.Commands.CreateOrder;
+using OrderingService.Commands.DeleteOrder;
 using OrderingService.Commands.GetOrder;
 using OrderingService.Commands.UpdateOrder;
 using OrderingService.Domain.Contracts;
@@ -21,13 +22,15 @@ namespace OrderingService.WebApi.Controllers
         private readonly ICommandHandler<CreateOrderCommand, string> _createOrder;
         private readonly ICommandHandler<GetOrderCommand, Order> _getOrder;
         private readonly ICommandHandler<UpdateOrderCommand, Order> _updateOrder;
+        private readonly ICommandHandler<DeleteOrderCommand> _deleteOrder;
 
         public OrderController(
             ILogger<OrderController> logger,
             ITranscoder transcoder,
             ICommandHandler<CreateOrderCommand, string> createOrder,
             ICommandHandler<GetOrderCommand, Order> getOrder,
-            ICommandHandler<UpdateOrderCommand, Order> updateOrder
+            ICommandHandler<UpdateOrderCommand, Order> updateOrder,
+            ICommandHandler<DeleteOrderCommand> deleteOrder
             )
         {
             _logger = Guard.Argument(logger, nameof(logger)).NotNull().Value;
@@ -35,14 +38,13 @@ namespace OrderingService.WebApi.Controllers
             _createOrder = Guard.Argument(createOrder, nameof(createOrder)).NotNull().Value;
             _getOrder = Guard.Argument(getOrder, nameof(getOrder)).NotNull().Value;
             _updateOrder = Guard.Argument(updateOrder, nameof(updateOrder)).NotNull().Value;
+            _deleteOrder = Guard.Argument(deleteOrder, nameof(deleteOrder)).NotNull().Value;
         }
 
         [HttpPost]
         public async Task<IActionResult> Order()
         {
-            _logger.LogTrace("Entering POST endpoint {endpoint} for controller {OrderController}", nameof(Order), typeof(OrderController));
             CreateOrderCommand createOrderCommand = await DecodePostRequest();
-            _logger.LogTrace("{commandType} value is {command}", typeof(CreateOrderCommand), createOrderCommand);
             string newId = await _createOrder.Handle(createOrderCommand);
             return Ok(newId);
         }
@@ -57,6 +59,17 @@ namespace OrderingService.WebApi.Controllers
             Order order = await _getOrder.Handle(getOrderCommand);
             await EncodeResponse(order);
             return new EmptyResult();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> OrderDelete([FromRoute] string id)
+        {
+            DeleteOrderCommand deleteOrderCommand = new DeleteOrderCommand
+            {
+                Id = id
+            };
+            await _deleteOrder.Handle(deleteOrderCommand);
+            return NoContent();
         }
 
         [HttpPut]

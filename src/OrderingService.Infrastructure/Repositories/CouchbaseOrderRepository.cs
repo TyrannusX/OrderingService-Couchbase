@@ -43,7 +43,7 @@ namespace OrderingService.Infrastructure.Repositories
             {
                 ICouchbaseCollection collection = await GetCollection();
 
-                IGetResult couchbaseData = await collection.GetAsync(id, options => options.Transcoder(new RawJsonTranscoder()));
+                IGetResult couchbaseData = await collection.GetAsync(id);
 
                 try
                 {
@@ -82,19 +82,7 @@ namespace OrderingService.Infrastructure.Repositories
             while (counter < _couchbaseConfiguration.MaxCasRetries)
             {
                 ICouchbaseCollection collection = await GetCollection();
-
-                IGetResult couchbaseData = await collection.GetAsync(id, options => options.Transcoder(new RawJsonTranscoder()));
-                byte[] currentPersistedOrderAsBytes = couchbaseData.ContentAs<byte[]>();
-                Order currentPersistedOrder = await _transcoder.Decode(currentPersistedOrderAsBytes, nameof(Order)) as Order;
-
-                currentPersistedOrder.CustomerLastName = item.CustomerFirstName;
-                currentPersistedOrder.CustomerLastName = item.CustomerLastName;
-                currentPersistedOrder.Address.City = item.Address.City;
-                currentPersistedOrder.Address.State = item.Address.State;
-                currentPersistedOrder.Address.StreetName = item.Address.StreetName;
-                currentPersistedOrder.Address.PostalCode = item.Address.PostalCode;
-                currentPersistedOrder.Price = item.Price;
-
+                IGetResult couchbaseData = await collection.GetAsync(id);
                 byte[] encodedOrder = await _transcoder.Encode(item, nameof(Order));
 
                 try

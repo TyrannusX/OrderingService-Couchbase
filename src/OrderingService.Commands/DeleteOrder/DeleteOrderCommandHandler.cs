@@ -1,5 +1,6 @@
 ﻿using Dawn;
 using Microsoft.Extensions.Logging;
+using OrderingService.Commands.DeleteOrder;
 using OrderingService.Domain.Contracts;
 using OrderingService.Domain.Orders;
 using System;
@@ -7,23 +8,23 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OrderingService.Commands.GetOrder
+namespace OrderingService.Commands.DeleteOrder
 {
-    public class GetOrderCommandHandler : ICommandHandler<GetOrderCommand, Order>
+    public class DeleteOrderCommandHandler : ICommandHandler<DeleteOrderCommand>
     {
-        private readonly ILogger<GetOrderCommandHandler> _logger;
+        private readonly ILogger<DeleteOrderCommandHandler> _logger;
         private readonly IRepository<Order> _orderRepository;
 
-        public GetOrderCommandHandler(ILogger<GetOrderCommandHandler> logger, IRepository<Order> orderRepository)
+        public DeleteOrderCommandHandler(ILogger<DeleteOrderCommandHandler> logger, IRepository<Order> orderRepository)
         {
             _logger = Guard.Argument(logger, nameof(logger)).NotNull().Value;
             _orderRepository = Guard.Argument(orderRepository, nameof(orderRepository)).NotNull().Value;
         }
 
-        public async Task<Order> Handle(GetOrderCommand command)
+        public async Task Handle(DeleteOrderCommand command)
         {
-            _logger.LogTrace("Handling get order command with data {data}", command);
-            _logger.LogTrace("Attempting to find Order with Id {id}", command.Id);
+            _logger.LogTrace("Handling delete order command with data {data}", command);
+            _logger.LogTrace("Attempting to find Order with Id {id} to delete", command.Id);
             Order order = await _orderRepository.Read(command.Id);
             if (order is null)
             {
@@ -31,8 +32,8 @@ namespace OrderingService.Commands.GetOrder
                 _logger.LogError(message);
                 throw new Exception(message);
             }
-            _logger.LogTrace("Successfully found order with id {id}. Returning . . .", command.Id);
-            return order;
+            await _orderRepository.Delete(command.Id);
+            _logger.LogTrace("Successfully deleted order with id {id}", command.Id);
         }
     }
 }

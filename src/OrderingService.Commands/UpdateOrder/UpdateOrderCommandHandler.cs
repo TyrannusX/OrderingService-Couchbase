@@ -20,14 +20,20 @@ namespace OrderingService.Commands.UpdateOrder
 
         public async Task<Order> Handle(UpdateOrderCommand command)
         {
+            _logger.LogTrace("Handling update order command with command {command}", command);
             Validate(command);
             Order orderToUpdate = new Order();
+            orderToUpdate.Id = command.Id;
             orderToUpdate.CustomerFirstName = command.CustomerFirstName;
             orderToUpdate.CustomerLastName = command.CustomerLastName;
             orderToUpdate.Address = command.Address;
             orderToUpdate.Price = command.Price;
 
-            return await _orderRepository.Update(orderToUpdate, command.Id);
+            Order order = await _orderRepository.Update(orderToUpdate, command.Id);
+
+            _logger.LogTrace("Updated order successfully for Id {id}", command.Id);
+
+            return order;
         }
 
         private void Validate(UpdateOrderCommand updateOrderCommand)
