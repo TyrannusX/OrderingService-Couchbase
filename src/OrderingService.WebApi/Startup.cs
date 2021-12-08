@@ -28,6 +28,7 @@ namespace OrderingService.WebApi
         {
             services.AddConfigurations(Configuration);
             services.AddControllers();
+            services.AddDispatchers();
             services.AddCommandHandlers();
             services.AddTranscoders();
             services.AddRepositories();

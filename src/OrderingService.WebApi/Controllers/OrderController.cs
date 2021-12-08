@@ -19,33 +19,24 @@ namespace OrderingService.WebApi.Controllers
     {
         private readonly ILogger<OrderController> _logger;
         private readonly ITranscoder _transcoder;
-        private readonly ICommandHandler<CreateOrderCommand, string> _createOrder;
-        private readonly ICommandHandler<GetOrderCommand, Order> _getOrder;
-        private readonly ICommandHandler<UpdateOrderCommand, Order> _updateOrder;
-        private readonly ICommandHandler<DeleteOrderCommand> _deleteOrder;
+        private readonly ICommandDispatcher _commandDispatcher;
 
         public OrderController(
             ILogger<OrderController> logger,
             ITranscoder transcoder,
-            ICommandHandler<CreateOrderCommand, string> createOrder,
-            ICommandHandler<GetOrderCommand, Order> getOrder,
-            ICommandHandler<UpdateOrderCommand, Order> updateOrder,
-            ICommandHandler<DeleteOrderCommand> deleteOrder
+            ICommandDispatcher commandDispatcher
             )
         {
             _logger = Guard.Argument(logger, nameof(logger)).NotNull().Value;
             _transcoder = Guard.Argument(transcoder, nameof(transcoder)).NotNull().Value;
-            _createOrder = Guard.Argument(createOrder, nameof(createOrder)).NotNull().Value;
-            _getOrder = Guard.Argument(getOrder, nameof(getOrder)).NotNull().Value;
-            _updateOrder = Guard.Argument(updateOrder, nameof(updateOrder)).NotNull().Value;
-            _deleteOrder = Guard.Argument(deleteOrder, nameof(deleteOrder)).NotNull().Value;
+            _commandDispatcher = Guard.Argument(commandDispatcher, nameof(commandDispatcher)).NotNull().Value;
         }
 
         [HttpPost]
         public async Task<IActionResult> Order()
         {
             CreateOrderCommand createOrderCommand = await DecodePostRequest();
-            string newId = await _createOrder.Handle(createOrderCommand);
+            string newId = await _commandDispatcher.SendAsync<CreateOrderCommand, string>(createOrderCommand);
             return Ok(newId);
         }
 
@@ -56,7 +47,7 @@ namespace OrderingService.WebApi.Controllers
             {
                 Id = id
             };
-            Order order = await _getOrder.Handle(getOrderCommand);
+            Order order = await _commandDispatcher.SendAsync<GetOrderCommand, Order>(getOrderCommand);
             await EncodeResponse(order);
             return new EmptyResult();
         }
@@ -68,7 +59,7 @@ namespace OrderingService.WebApi.Controllers
             {
                 Id = id
             };
-            await _deleteOrder.Handle(deleteOrderCommand);
+            await _commandDispatcher.SendAsync(deleteOrderCommand);
             return NoContent();
         }
 
@@ -76,7 +67,7 @@ namespace OrderingService.WebApi.Controllers
         public async Task<IActionResult> OrderUpdate()
         {
             UpdateOrderCommand updateOrderCommand = await DecodePutRequest();
-            Order order = await _updateOrder.Handle(updateOrderCommand);
+            Order order = await _commandDispatcher.SendAsync<UpdateOrderCommand, Order>(updateOrderCommand);
             await EncodeResponse(order);
             return new EmptyResult();
         }

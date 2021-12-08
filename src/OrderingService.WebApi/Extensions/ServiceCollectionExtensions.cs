@@ -8,12 +8,19 @@ using OrderingService.Domain.Contracts;
 using OrderingService.Domain.Orders;
 using OrderingService.Domain.Transcoders;
 using OrderingService.Infrastructure.Configurations;
+using OrderingService.Infrastructure.Dispatchers;
 using OrderingService.Infrastructure.Repositories;
 
 namespace OrderingService.WebApi.Extensions
 {
     public static class ServiceCollectionExtensions
     {
+        public static IServiceCollection AddDispatchers(this IServiceCollection serviceCollection)
+        {
+            serviceCollection.AddScoped<ICommandDispatcher, CommandDispatcher>();
+            return serviceCollection;
+        }
+
         public static IServiceCollection AddCommandHandlers(this IServiceCollection serviceCollection)
         {
             //Order CRUD handlers
